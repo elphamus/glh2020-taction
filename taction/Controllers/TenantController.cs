@@ -53,6 +53,37 @@ namespace taction.Controllers
             using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(stream, true))
             {
                 var body = wordDoc.MainDocumentPart.Document.Body;
+                IEnumerable<Table> clientAddress = body.Elements<Table>();
+
+                // There's only 1 table in this right now.
+                Table clientAddressBlock = clientAddress.ToList()[0];
+                
+                TableRow clientAddressTable = clientAddressBlock.Elements<TableRow>().First();
+                //Remove the landlord address (we may add this back later).
+                clientAddressBlock.RemoveChild<TableRow>(clientAddressBlock.Elements<TableRow>().Last());
+
+                TableCell dataCell = (TableCell)clientAddressTable.FirstOrDefault();
+
+                TableRow newTr = new TableRow()
+                {
+                    
+                };
+                List<Paragraph> existingParagraphs = dataCell.Elements<Paragraph>().ToList();
+                TableCell newAddition = new TableCell(dataCell.TableCellProperties.CloneNode(true));
+
+                newAddition.Append(existingParagraphs[0].ParagraphProperties.CloneNode(true), new Paragraph(new Run(new Text(data.tenant.name))));
+                newAddition.Append(existingParagraphs[1].ParagraphProperties.CloneNode(true), new Paragraph(new Run(new Text(data.tenant.address1))));
+                newAddition.Append(existingParagraphs[2].ParagraphProperties.CloneNode(true), new Paragraph(new Run(new Text(data.tenant.address2))));
+                newAddition.Append(existingParagraphs[3].ParagraphProperties.CloneNode(true), new Paragraph(new Run(new Text(data.tenant.city))));
+                newAddition.Append(existingParagraphs[4].ParagraphProperties.CloneNode(true), new Paragraph(new Run(new Text(data.tenant.postcode))));
+
+                newTr.Append(newAddition);
+
+                clientAddressBlock.RemoveChild<TableRow>(clientAddressBlock.Elements<TableRow>().Last());
+                clientAddressBlock.Append(newTr);
+
+
+
                 var paras = body.Elements<Paragraph>();
                 var newParas = new List<Paragraph>();
                 // We're loosing the address so we should put it back in.
@@ -151,11 +182,11 @@ namespace taction.Controllers
                     newParas.Add(para);
                 }
                 body.RemoveAllChildren();
+                body.AppendChild<Table>(clientAddressBlock);
                 foreach (var p in newParas)
                 {
                     body.AppendChild<Paragraph>(p);
                 }
-
                 body.AppendChild<Paragraph>(AddPageBreak());
                 //body.AppendChild<Paragraph>(AddLandscapeParagraph());
                 body.AppendChild<Paragraph>(CreateHeader("Schedule of Conditions"));
@@ -340,5 +371,6 @@ namespace taction.Controllers
                     new Bold()),
                     new Text(headerText)));
         }
+
     }
 }
