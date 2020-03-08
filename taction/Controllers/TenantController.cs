@@ -58,7 +58,7 @@ namespace taction.Controllers
                 // We're loosing the address so we should put it back in.
 
                 newParas.Add(new Paragraph(new ParagraphProperties(new Bold()), new Run(new RunProperties(new Bold()), new Text("Private and Confidential"))));
-                newParas.Add(new Paragraph(new Run(new Text(" "))));
+                newParas.Add(AddSpacing());
                 newParas.Add(new Paragraph(new Run(new Text(data.landlord.name))));
                 newParas.Add(new Paragraph(new Run(new Text(data.landlord.address1))));
                 newParas.Add(new Paragraph(new Run(new Text(data.landlord.address2))));
@@ -68,7 +68,7 @@ namespace taction.Controllers
                 }
                 newParas.Add(new Paragraph(new Run(new Text(data.landlord.city))));
                 newParas.Add(new Paragraph(new Run(new Text(data.landlord.postcode))));
-                newParas.Add(new Paragraph(new Run(new Text(" "))));
+                newParas.Add(AddSpacing());
 
                 foreach (var para in paras)
                 {
@@ -158,6 +158,8 @@ namespace taction.Controllers
 
                 body.AppendChild<Paragraph>(AddPageBreak());
                 //body.AppendChild<Paragraph>(AddLandscapeParagraph());
+                body.AppendChild<Paragraph>(CreateHeader("Schedule of Conditions"));
+                body.AppendChild<Paragraph>(AddSpacing());
                 body.AppendChild<Table>(CreateScheduleOfConditions(data));
 
                 wordDoc.MainDocumentPart.Document.Save();
@@ -314,6 +316,11 @@ namespace taction.Controllers
                 new Run(new Break() { Type = BreakValues.Page }));
         }
 
+        public Paragraph AddSpacing()
+        {
+            return new Paragraph(new Run(new Text(" ")));
+        }
+
         public Paragraph AddLandscapeParagraph()
         {
             return new Paragraph(
@@ -323,8 +330,15 @@ namespace taction.Controllers
                    new PageMargin() { Top = 720, Right = (UInt32Value)1440U, Bottom = 360, Left = (UInt32Value)1440U, Header = (UInt32Value)450U, Footer = (UInt32Value)720U, Gutter = (UInt32Value)0U })
                ))
             { RsidParagraphAddition = "00BA2F0F", RsidParagraphProperties = "00BA2F0F", RsidRunAdditionDefault = "00BA2F0F" };
-            
+        }
 
+        public Paragraph CreateHeader(string headerText)
+        {
+            return new Paragraph(new ParagraphProperties(
+                new Justification() { Val = JustificationValues.Center }), 
+                new Run(new RunProperties(
+                    new Bold()),
+                    new Text(headerText)));
         }
     }
 }
