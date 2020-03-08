@@ -48,8 +48,9 @@ namespace taction.DTO
 
     public class Defect
     {
+        public string item { get; set; }
         public string room { get; set; }
-        public string extendOfDamage { get; set; }
+        public string extentOfDamage { get; set; }
         public string inconvenienceSuffered { get; set; }
         public string costOfRepair { get; set; }
         public string photo { get; set; }

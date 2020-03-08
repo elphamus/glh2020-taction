@@ -127,7 +127,7 @@ namespace taction.Controllers
                                     new NumberingLevelReference() { Val = 0 },
                                     new NumberingId() { Val = 1 })),
                                     new Run(new Text(h.date.ToString("dd/MM/yyyy") + " - " + h.description + "\n")))
-                                    { RsidParagraphAddition = "00031711", RsidParagraphProperties = "00031711", RsidRunAdditionDefault = "00031711" };
+                            { RsidParagraphAddition = "00031711", RsidParagraphProperties = "00031711", RsidRunAdditionDefault = "00031711" };
                             newParas.Add(element);
                         }
                     }
@@ -157,8 +157,9 @@ namespace taction.Controllers
                 }
 
                 body.AppendChild<Paragraph>(AddPageBreak());
+                //body.AppendChild<Paragraph>(AddLandscapeParagraph());
                 body.AppendChild<Table>(CreateScheduleOfConditions(data));
-                
+
                 wordDoc.MainDocumentPart.Document.Save();
 
             }
@@ -220,9 +221,17 @@ namespace taction.Controllers
             // Append the TableProperties object to the empty table.
             table.AppendChild<TableProperties>(tblProp);
 
+            table.Append(CreateTableHeaders());
+
             foreach (var d in data.defects)
             {
                 TableRow tr = new TableRow();
+
+                TableCell tc0 = new TableCell();
+                tc0.Append(new TableCellProperties(
+                    new TableCellWidth() { Type = TableWidthUnitValues.Dxa, Width = "2400" }));
+                tc0.Append(new Paragraph(new Run(new Text(d.item))));
+                tr.Append(tc0);
 
                 TableCell tc1 = new TableCell();
                 tc1.Append(new TableCellProperties(
@@ -234,7 +243,7 @@ namespace taction.Controllers
                 TableCell tc2 = new TableCell();
                 tc2.Append(new TableCellProperties(
                     new TableCellWidth() { Type = TableWidthUnitValues.Dxa, Width = "2400" }));
-                tc2.Append(new Paragraph(new Run(new Text(d.extendOfDamage))));
+                tc2.Append(new Paragraph(new Run(new Text(d.extentOfDamage))));
                 tr.Append(tc2);
 
 
@@ -251,7 +260,6 @@ namespace taction.Controllers
                 tc4.Append(new Paragraph(new Run(new Text(d.costOfRepair))));
                 tr.Append(tc4);
 
-
                 // Append the table row to the table.
                 table.Append(tr);
             }
@@ -259,10 +267,64 @@ namespace taction.Controllers
             return table;
         }
 
+        public TableRow CreateTableHeaders()
+        {
+            TableRow tr = new TableRow();
+
+            TableCell tc0 = new TableCell();
+            tc0.Append(new TableCellProperties(
+                new TableCellWidth() { Type = TableWidthUnitValues.Dxa, Width = "2400" }));
+            tc0.Append(new Paragraph(new Run(new RunProperties(new Bold()), new Text("Item"))));
+            tr.Append(tc0);
+
+
+            TableCell tc1 = new TableCell();
+            tc1.Append(new TableCellProperties(
+                new TableCellWidth() { Type = TableWidthUnitValues.Dxa, Width = "2400" }));
+            tc1.Append(new Paragraph(new Run(new RunProperties(new Bold()), new Text("What room is it in"))));
+            tr.Append(tc1);
+
+
+            TableCell tc2 = new TableCell();
+            tc2.Append(new TableCellProperties(
+                new TableCellWidth() { Type = TableWidthUnitValues.Dxa, Width = "2400" }));
+            tc2.Append(new Paragraph(new Run(new RunProperties(new Bold()), new Text("Extent of damage"))));
+            tr.Append(tc2);
+
+
+            TableCell tc3 = new TableCell();
+            tc3.Append(new TableCellProperties(
+                new TableCellWidth() { Type = TableWidthUnitValues.Dxa, Width = "2400" }));
+            tc3.Append(new Paragraph(new Run(new RunProperties(new Bold()), new Text("Inconvenience Suffered"))));
+            tr.Append(tc3);
+
+
+            TableCell tc4 = new TableCell();
+            tc4.Append(new TableCellProperties(
+                new TableCellWidth() { Type = TableWidthUnitValues.Dxa, Width = "2400" }));
+            tc4.Append(new Paragraph(new Run(new RunProperties(new Bold()), new Text("Est. Cost of Repair"))));
+            tr.Append(tc4);
+
+            return tr;
+        }
+
         public Paragraph AddPageBreak()
         {
             return new Paragraph(
                 new Run(new Break() { Type = BreakValues.Page }));
+        }
+
+        public Paragraph AddLandscapeParagraph()
+        {
+            return new Paragraph(
+           new ParagraphProperties(
+               new SectionProperties(
+                   new PageSize() { Width = (UInt32Value)12240U, Height = (UInt32Value)15840U, Orient = PageOrientationValues.Landscape },
+                   new PageMargin() { Top = 720, Right = (UInt32Value)1440U, Bottom = 360, Left = (UInt32Value)1440U, Header = (UInt32Value)450U, Footer = (UInt32Value)720U, Gutter = (UInt32Value)0U })
+               ))
+            { RsidParagraphAddition = "00BA2F0F", RsidParagraphProperties = "00BA2F0F", RsidRunAdditionDefault = "00BA2F0F" };
+            
+
         }
     }
 }
