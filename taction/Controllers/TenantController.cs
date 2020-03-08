@@ -58,6 +58,7 @@ namespace taction.Controllers
                 // We're loosing the address so we should put it back in.
 
                 newParas.Add(new Paragraph(new ParagraphProperties(new Bold()), new Run(new RunProperties(new Bold()), new Text("Private and Confidential"))));
+                newParas.Add(new Paragraph(new Run(new Text(" "))));
                 newParas.Add(new Paragraph(new Run(new Text(data.landlord.name))));
                 newParas.Add(new Paragraph(new Run(new Text(data.landlord.address1))));
                 newParas.Add(new Paragraph(new Run(new Text(data.landlord.address2))));
@@ -65,6 +66,7 @@ namespace taction.Controllers
                 {
                     newParas.Add(new Paragraph(new Run(new Text(data.landlord.address3))));
                 }
+                newParas.Add(new Paragraph(new Run(new Text(data.landlord.city))));
                 newParas.Add(new Paragraph(new Run(new Text(data.landlord.postcode))));
                 newParas.Add(new Paragraph(new Run(new Text(" "))));
 
@@ -153,13 +155,114 @@ namespace taction.Controllers
                 {
                     body.AppendChild<Paragraph>(p);
                 }
+
+                body.AppendChild<Paragraph>(AddPageBreak());
+                body.AppendChild<Table>(CreateScheduleOfConditions(data));
+                
                 wordDoc.MainDocumentPart.Document.Save();
 
             }
             return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "servedFilename.docx");
 
+        }
+
+        public Table CreateScheduleOfConditions(DataDTO data)
+        {
+            /*
+             * Border size of 1pt is Size 8, 3pt is Size 24
+             */
+
+            // Create an empty table.
+            Table table = new Table();
+
+            // Create a TableProperties object and specify its border information.
+            TableProperties tblProp = new TableProperties(
+                new TableBorders(
+                    new TopBorder()
+                    {
+                        Val =
+                        new EnumValue<BorderValues>(BorderValues.Single),
+                        Size = 8
+                    },
+                    new BottomBorder()
+                    {
+                        Val =
+                        new EnumValue<BorderValues>(BorderValues.Single),
+                        Size = 8
+                    },
+                    new LeftBorder()
+                    {
+                        Val =
+                        new EnumValue<BorderValues>(BorderValues.Single),
+                        Size = 8
+                    },
+                    new RightBorder()
+                    {
+                        Val =
+                        new EnumValue<BorderValues>(BorderValues.Single),
+                        Size = 8
+                    },
+                    new InsideHorizontalBorder()
+                    {
+                        Val =
+                        new EnumValue<BorderValues>(BorderValues.Single),
+                        Size = 8
+                    },
+                    new InsideVerticalBorder()
+                    {
+                        Val =
+                        new EnumValue<BorderValues>(BorderValues.Single),
+                        Size = 8
+                    }
+                )
+            );
+
+            // Append the TableProperties object to the empty table.
+            table.AppendChild<TableProperties>(tblProp);
+
+            foreach (var d in data.defects)
+            {
+                TableRow tr = new TableRow();
+
+                TableCell tc1 = new TableCell();
+                tc1.Append(new TableCellProperties(
+                    new TableCellWidth() { Type = TableWidthUnitValues.Dxa, Width = "2400" }));
+                tc1.Append(new Paragraph(new Run(new Text(d.room))));
+                tr.Append(tc1);
 
 
+                TableCell tc2 = new TableCell();
+                tc2.Append(new TableCellProperties(
+                    new TableCellWidth() { Type = TableWidthUnitValues.Dxa, Width = "2400" }));
+                tc2.Append(new Paragraph(new Run(new Text(d.extendOfDamage))));
+                tr.Append(tc2);
+
+
+                TableCell tc3 = new TableCell();
+                tc3.Append(new TableCellProperties(
+                    new TableCellWidth() { Type = TableWidthUnitValues.Dxa, Width = "2400" }));
+                tc3.Append(new Paragraph(new Run(new Text(d.inconvenienceSuffered))));
+                tr.Append(tc3);
+
+
+                TableCell tc4 = new TableCell();
+                tc4.Append(new TableCellProperties(
+                    new TableCellWidth() { Type = TableWidthUnitValues.Dxa, Width = "2400" }));
+                tc4.Append(new Paragraph(new Run(new Text(d.costOfRepair))));
+                tr.Append(tc4);
+
+
+                // Append the table row to the table.
+                table.Append(tr);
+            }
+
+            return table;
+        }
+
+        public Paragraph AddPageBreak()
+        {
+            return new Paragraph(
+                new Run(new Break() { Type = BreakValues.Page }));
         }
     }
 }

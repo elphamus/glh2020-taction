@@ -12,6 +12,7 @@ namespace taction.DTO
         public IEnumerable<History> history { get; set; }
         public Landlord landlord { get; set; }
         public IEnumerable<Availability> availability { get; set; }
+        public IEnumerable<Defect> defects { get; set; }
     }
 
     public class Availability {
@@ -47,10 +48,11 @@ namespace taction.DTO
 
     public class Defect
     {
-        public string AreaOfProperty { get; set; }
-        public string Summary { get; set; }
-        public string Notice { get; set; }
-        public string Inconvenience { get; set; }
+        public string room { get; set; }
+        public string extendOfDamage { get; set; }
+        public string inconvenienceSuffered { get; set; }
+        public string costOfRepair { get; set; }
+        public string photo { get; set; }
     }
 
     public class Issue
